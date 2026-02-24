@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nutrition-raqa"
+version = "1.0.0"
+description = "Production-grade Retrieval-Augmented QA for nutrition and sports health"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["nlp", "qa", "retrieval", "nutrition", "health", "fastapi"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi==0.95.2",
+    "uvicorn[standard]==0.23.1",
+    "transformers==4.35.0",
+    "sentence-transformers==2.2.2",
+    "faiss-cpu==1.7.4",
+    "pydantic==1.10.12",
+    "python-dotenv==1.0.0",
+    "requests==2.31.0",
+    "gunicorn==21.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    "httpx==0.24.0",
+    "pytest-httpx==0.21.0",
+    "black==24.3.0",
+    "ruff==0.22.0",
+]
+demo = [
+    "streamlit==1.28.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/nutrition-raqa"
+Documentation = "https://github.com/yourusername/nutrition-raqa/wiki"
+Repository = "https://github.com/yourusername/nutrition-raqa.git"
+Issues = "https://github.com/yourusername/nutrition-raqa/issues"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # Line too long

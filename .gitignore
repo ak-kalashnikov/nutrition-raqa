@@ -1,0 +1,14 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.sqlite3
+*.db
+*.pth
+.ipynb_checkpoints/
+.DS_Store
+.envrc
+.vscode/
+.idea/

@@ -1,0 +1,14 @@
+fastapi>=0.95.0
+uvicorn>=0.23.0
+sentence-transformers>=2.0
+faiss-cpu>=1.7
+pydantic>=1.10
+python-dotenv
+pytest>=7.0
+requests>=2.31
+gunicorn>=21.0
+beautifulsoup4>=4.12.2
+readability-lxml>=0.8.1
+pdfplumber>=0.8.0
+tqdm>=4.65.0
+groq>=0.4.2

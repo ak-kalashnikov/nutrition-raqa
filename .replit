@@ -1,0 +1,5 @@
+run = "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+modules = ["python-3.10"]
+
+[nix]
+channel = "stable-23_05"
