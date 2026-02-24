@@ -1,23 +1,81 @@
 from typing import List
 import os
 import json
+import logging
+import time
+from collections import defaultdict, deque
+from typing import Deque, Dict
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from groq import Groq
 
 from app.retriever import Retriever
+from app.config import get_settings
+
+settings = get_settings()
+
+logging.basicConfig(
+    level=getattr(logging, settings.log_level.upper(), logging.INFO),
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+)
+logger = logging.getLogger("nutrition-raqa")
 
 app = FastAPI(title="RAQA - Nutrition & Sports Health")
 
 class QueryRequest(BaseModel):
     question: str
-    k: int = 3
+    k: int = settings.default_k
 
 retriever: Retriever = None
 groq_client: Groq = None
+
+
+# Simple in-memory rate limiting (per IP)
+RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "30"))
+RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
+_request_log: Dict[str, Deque[float]] = defaultdict(deque)
+
+
+def _is_high_risk_query(text: str) -> bool:
+    """Very lightweight safety filter for emergencies / self-harm / acute issues."""
+    t = text.lower()
+    high_risk_keywords = [
+        "suicide",
+        "kill myself",
+        "self harm",
+        "overdose",
+        "emergency",
+        "severe chest pain",
+        "heart attack",
+        "can't breathe",
+        "cannot breathe",
+    ]
+    return any(kw in t for kw in high_risk_keywords)
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    dq = _request_log[client_ip]
+
+    # prune old entries
+    while dq and now - dq[0] > RATE_LIMIT_WINDOW_SECONDS:
+        dq.popleft()
+
+    if len(dq) >= RATE_LIMIT_MAX_REQUESTS:
+        logger.warning("Rate limit exceeded for IP %s", client_ip)
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Please slow down and try again shortly."},
+        )
+
+    dq.append(now)
+    response = await call_next(request)
+    return response
 
 
 @app.on_event("startup")
@@ -29,32 +87,46 @@ async def startup_event():
     data_file = os.path.join(base_dir, '..', 'data', 'nutrition_qa.jsonl')
 
     # Validate Groq API key
-    groq_api_key = os.getenv("GROQ_API_KEY")
+    groq_api_key = settings.groq_api_key
     if not groq_api_key:
-        print("⚠️  WARNING: GROQ_API_KEY environment variable not set!")
-        print("   To enable AI answer generation, set: export GROQ_API_KEY='your_key_here'")
-        print("   Get a free key from: https://console.groq.com/keys")
+        logger.warning(
+            "GROQ_API_KEY environment variable not set. "
+            "AI answer generation will be disabled until configured."
+        )
         groq_client = None
     else:
-        print("✓ GROQ_API_KEY detected, RAG generation enabled")
+        logger.info("GROQ_API_KEY detected, RAG generation enabled")
         groq_client = Groq(api_key=groq_api_key)
 
-    retriever = Retriever()
+    retriever = Retriever(model_name=settings.embedding_model)
 
     # Prefer on-disk index if available, fallback to in-memory build
     if os.path.exists(index_path) and os.path.exists(meta_path):
         retriever.load_index_from_disk(index_path, meta_path)
-        print(f"✓ Loaded FAISS index from disk ({meta_path})")
+        logger.info("Loaded FAISS index from disk (%s)", meta_path)
     else:
         retriever.load_documents(data_file)
         retriever.build_index()
-        print(f"✓ Built FAISS index from {data_file}")
+        logger.info("Built FAISS index from %s", data_file)
 
 
 @app.post("/query")
 async def query(req: QueryRequest):
     if retriever is None:
         raise HTTPException(status_code=503, detail="Retriever not initialized")
+
+    if _is_high_risk_query(req.question):
+        logger.info("High-risk query detected; returning safety response")
+        return {
+            "question": req.question,
+            "answer": (
+                "I’m not able to help with emergencies or serious crises. "
+                "If you or someone else may be in danger, please contact your local "
+                "emergency number or a qualified health professional immediately."
+            ),
+            "sources": [],
+            "source_count": 0,
+        }
     
     # Check if this is just a greeting or non-informational query
     greetings = ['hi', 'hello', 'hey', 'sup', 'what\'s up', 'howdy']
@@ -73,7 +145,7 @@ async def query(req: QueryRequest):
     retrieved_docs = retriever.retrieve(req.question, k=req.k)
     
     # Step 2: Check if results are relevant (relevance score threshold)
-    relevance_threshold = 0.4
+    relevance_threshold = settings.relevance_threshold
     has_relevant_docs = retrieved_docs and retrieved_docs[0].get('score', 0) >= relevance_threshold
     
     if groq_client is None:
@@ -97,7 +169,17 @@ async def query(req: QueryRequest):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a nutrition and sports health expert. Based on the provided documents, give a comprehensive, detailed, and practical answer. Always cite the relevant information from the documents."
+                        "content": (
+                            "You are a nutrition and sports health expert. "
+                            "Use ONLY the information in the provided documents to answer. "
+                            "If something is not clearly supported by the documents, say that you "
+                            "cannot be certain rather than guessing. "
+                            "Your answers are for general educational purposes only and do not "
+                            "constitute medical or nutritional advice. "
+                            "Do NOT diagnose conditions, prescribe medications, or provide "
+                            "personalized treatment plans. Encourage users to consult a licensed "
+                            "health professional for medical decisions."
+                        ),
                     },
                     {
                         "role": "user",
@@ -111,7 +193,7 @@ Answer this question comprehensively and in detail:
 Provide a thorough answer that synthesizes information from the documents, explains concepts clearly, and gives practical recommendations."""
                     }
                 ],
-                model="llama-3.3-70b-versatile",
+                model=settings.groq_model,
                 temperature=0.7,
                 max_tokens=1000,
             )
@@ -130,14 +212,22 @@ Provide a thorough answer that synthesizes information from the documents, expla
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a helpful, friendly assistant. You're aware that you're primarily a nutrition and sports health expert, but you can have natural conversations on other topics too. Keep responses concise and conversational."
+                        "content": (
+                            "You are a helpful, friendly assistant. You are primarily a nutrition "
+                            "and sports health expert, but you can have natural conversations on "
+                            "other topics too. "
+                            "Your responses are general information only and not medical advice. "
+                            "Do not diagnose conditions or give personalized treatment plans. "
+                            "Encourage users to consult a qualified professional for important "
+                            "health decisions."
+                        ),
                     },
                     {
                         "role": "user",
                         "content": req.question
                     }
                 ],
-                model="llama-3.3-70b-versatile",
+                model=settings.groq_model,
                 temperature=0.7,
                 max_tokens=1000,
             )
@@ -153,6 +243,7 @@ Provide a thorough answer that synthesizes information from the documents, expla
             
     except Exception as e:
         error_msg = str(e)
+        logger.exception("Error while handling /query: %s", error_msg)
         if "API key" in error_msg or "auth" in error_msg:
             error_msg = f"Groq API Authentication Failed: Check your GROQ_API_KEY. Get one at: https://console.groq.com/keys"
         elif "rate_limit" in error_msg:
@@ -169,7 +260,12 @@ Provide a thorough answer that synthesizes information from the documents, expla
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "retriever_initialized": retriever is not None,
+        "index_type": "disk" if retriever and retriever.meta else "memory",
+        "groq_available": groq_client is not None,
+    }
 
 
 # Serve the chat static UI
