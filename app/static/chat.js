@@ -3,6 +3,12 @@ const messages = document.getElementById('messages');
 const promptEl = document.getElementById('prompt');
 const sendBtn = document.getElementById('send');
 
+// Initial welcome message
+addMessage(
+  "Hi! I’m your nutrition and sports health assistant. I can explain nutrients, macros, training fuel, hydration, and general sports nutrition.\n\nI can’t give medical advice or emergency help. For diagnoses, medication, or urgent issues, please contact a licensed professional.",
+  'bot'
+);
+
 function addMessage(text, cls = 'bot'){
   const div = document.createElement('div');
   div.className = 'bubble ' + cls;
@@ -17,7 +23,7 @@ function formatDocResult(r, i){
 <div class="result-item">
   <div class="result-header">
     <span class="result-number">Result ${i}</span>
-    <span class="result-score">Score: ${(+r.score).toFixed(1)}%</span>
+    <span class="result-score">Score: ${(Math.max(0, Math.min(1, +r.score)) * 100).toFixed(1)}%</span>
   </div>
   <strong>${r.title || 'Document'}</strong>
   <p>${r.text}</p>
@@ -112,7 +118,7 @@ form.addEventListener('submit', async (e) =>{
     <div class="source-item">
       <div class="source-header">
         <span class="source-number">Source ${i + 1}</span>
-        <span class="source-score">Match Score: ${(+r.score).toFixed(1)}%</span>
+        <span class="source-score">Match Score: ${(Math.max(0, Math.min(1, +r.score)) * 100).toFixed(1)}%</span>
       </div>
       <strong>${r.title || 'Document'}</strong>
       <p>${r.text}</p>
