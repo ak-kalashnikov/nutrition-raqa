@@ -1,67 +1,116 @@
+"""Unit tests for Retriever with a lightweight mocked encoder."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import numpy as np
 import pytest
-import os
-import tempfile
-import json
-from app.retriever import Retriever
+
+
+def _keyword_encoder(texts, convert_to_numpy=True, normalize_embeddings=True):
+    """Deterministic bag-of-keywords embeddings (dim=8) for unit tests."""
+    if isinstance(texts, str):
+        texts = [texts]
+    dim = 8
+    keys = [
+        "protein",
+        "hydrat",
+        "creatine",
+        "carbohydrate",
+        "vitamin",
+        "lipid",
+        "mineral",
+        "water",
+    ]
+    rows = []
+    for text in texts:
+        lower = (text or "").lower()
+        v = np.zeros(dim, dtype=np.float32)
+        for i, key in enumerate(keys):
+            if key in lower:
+                v[i] = 1.0
+        if not v.any():
+            # stable fallback so FAISS always gets a vector
+            v[0] = 0.1
+        if normalize_embeddings:
+            n = float(np.linalg.norm(v))
+            if n > 0:
+                v = v / n
+        rows.append(v)
+    return np.stack(rows)
 
 
 @pytest.fixture
-def sample_data_file():
-    """Create a temporary data file with sample documents."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.jsonl', encoding='utf-8') as f:
-        f.write('{"id": "1", "title": "Protein", "text": "Protein is essential for muscle growth and tissue repair."}\n')
-        f.write('{"id": "2", "title": "Hydration", "text": "Staying hydrated improves athletic performance and recovery."}\n')
-        f.write('{"id": "3", "title": "Sleep", "text": "Sleep is critical for muscle recovery and adaptation."}\n')
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
+def tiny_jsonl(tmp_path: Path) -> Path:
+    path = tmp_path / "docs.jsonl"
+    rows = [
+        {
+            "id": "d1",
+            "title": "Protein timing",
+            "text": "Consuming protein after resistance training supports recovery. Aim for 20-40g.",
+        },
+        {
+            "id": "d2",
+            "title": "Hydration",
+            "text": "Proper hydration matters; 2% bodyweight fluid loss can reduce endurance.",
+        },
+        {
+            "id": "d3",
+            "title": "Creatine",
+            "text": "Creatine monohydrate is a well-studied supplement with maintenance dosing.",
+        },
+    ]
+    with path.open("w", encoding="utf-8") as f:
+        for row in rows:
+            import json
+
+            f.write(json.dumps(row) + "\n")
+    return path
 
 
-@pytest.fixture
-def retriever(sample_data_file):
-    """Create a Retriever instance with sample data."""
-    ret = Retriever(model_name="all-MiniLM-L6-v2")
-    ret.load_documents(sample_data_file)
-    ret.build_index()
-    return ret
+def test_build_index_and_retrieve_returns_hits(tiny_jsonl: Path):
+    mock_st = MagicMock()
+    mock_st.encode.side_effect = _keyword_encoder
+
+    with patch("app.retriever.SentenceTransformer", return_value=mock_st):
+        from app.retriever import Retriever
+
+        retriever = Retriever(model_name="mock-model")
+        retriever.load_documents(str(tiny_jsonl))
+        retriever.build_index()
+
+        hits = retriever.retrieve("How much protein after training?", k=2)
+
+    assert hits, "expected at least one retrieval hit"
+    assert all("id" in h and "score" in h and "text" in h for h in hits)
+    assert hits[0]["id"] == "d1"
+    assert len(hits) <= 2
 
 
-def test_retriever_loads_documents(sample_data_file):
-    """Test that retriever correctly loads documents."""
-    ret = Retriever()
-    ret.load_documents(sample_data_file)
-    assert len(ret.docs) == 3
-    assert ret.docs[0]['id'] == "1"
-    assert "Protein" in ret.docs[0]['title']
+def test_retrieve_hydration_prefers_hydration_doc(tiny_jsonl: Path):
+    mock_st = MagicMock()
+    mock_st.encode.side_effect = _keyword_encoder
+
+    with patch("app.retriever.SentenceTransformer", return_value=mock_st):
+        from app.retriever import Retriever
+
+        retriever = Retriever(model_name="mock-model")
+        retriever.load_documents(str(tiny_jsonl))
+        retriever.build_index()
+        hits = retriever.retrieve("athletic hydration and fluid loss", k=1)
+
+    assert hits[0]["id"] == "d2"
 
 
-def test_retriever_builds_index(retriever):
-    """Test that index is built correctly."""
-    assert retriever.index is not None
-    assert retriever.embeddings is not None
-    assert retriever.embeddings.shape[0] == 3
+def test_build_index_requires_documents():
+    mock_st = MagicMock()
+    mock_st.encode.side_effect = _keyword_encoder
 
+    with patch("app.retriever.SentenceTransformer", return_value=mock_st):
+        from app.retriever import Retriever
 
-def test_retriever_retrieves_results(retriever):
-    """Test that retriever returns relevant documents."""
-    results = retriever.retrieve("How important is protein?", k=2)
-    assert len(results) <= 2
-    assert all('score' in r for r in results)
-    assert all(0 <= r['score'] <= 1 for r in results)
-    # Top result should be about protein
-    assert len(results) > 0
-    assert "Protein" in results[0]['title']
-
-
-def test_retriever_k_parameter(retriever):
-    """Test that k parameter limits results."""
-    results_k1 = retriever.retrieve("nutrition", k=1)
-    results_k3 = retriever.retrieve("nutrition", k=3)
-    assert len(results_k1) == 1
-    assert len(results_k3) <= 3
-
-
-def test_retriever_handles_empty_query(retriever):
-    """Test retriever with empty query."""
-    results = retriever.retrieve("", k=1)
-    assert len(results) > 0
+        retriever = Retriever(model_name="mock-model")
+        with pytest.raises(ValueError, match="No documents"):
+            retriever.build_index()

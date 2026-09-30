@@ -1,109 +1,102 @@
-# Contributing to Nutrition & Sports Health RAQA
+# Contributing to Nutrition RAQA
 
-Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to this project.
+Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
 
-## Code of Conduct
+## Table of Contents
 
-Be respectful and inclusive. We welcome contributions from everyone regardless of background.
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Code Style](#code-style)
+- [Testing](#testing)
+- [Pull Request Process](#pull-request-process)
 
-## How to Contribute
+## Getting Started
 
-### Reporting Bugs
+### Prerequisites
 
-1. Check existing [issues](https://github.com/yourusername/nutrition-raqa/issues)
-2. Create a new issue with:
-   - **Title:** Short description of the bug
-   - **Description:** Step-by-step reproduction
-   - **Expected vs Actual:** What should happen vs what happened
-   - **Environment:** Python version, OS, Python packages
+- Python 3.10 or higher
+- Git
+- Docker (optional)
 
-### Suggesting Features
-
-1. Open a GitHub issue with the `enhancement` label
-2. Include:
-   - Use case and motivation
-   - Proposed implementation (if applicable)
-   - Additional context
-
-### Submitting Code
-
-#### Setup Development Environment
+### Setup Development Environment
 
 ```bash
-# Clone repo
-git clone https://github.com/yourusername/nutrition-raqa.git
-cd nutrition-raqa
+# Clone the repository
+git clone <repo-url>
+cd Nutrition
 
-# Create virtual env
+# Create virtual environment
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
 
-# Install dev dependencies
-pip install -r requirements.txt
-pip install pytest black ruff pytest-cov
+# Install dependencies
+make install
+make install-dev
+
+# Build RAG database
+make build-db
+
+# Run tests
+make test
+
+# Start development server
+make dev
 ```
 
-#### Making Changes
+## Development Workflow
 
-1. Create a feature branch:
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-
-2. Follow the code style:
-   ```bash
-   black app/ tests/
-   ruff check app/ tests/ --fix
-   ```
-
-3. Write/update tests:
-   ```bash
-   pytest -v
-   ```
-
-4. Commit with clear messages:
-   ```bash
-   git commit -m "feat: add new retriever model support"
-   ```
-
-5. Push and open a Pull Request:
-   ```bash
-   git push origin feature/my-feature
-   ```
-
-#### Pull Request Checklist
-
-- [ ] Code follows project style (black + ruff)
-- [ ] Tests pass locally (`pytest -v`)
-- [ ] New tests added for new features
-- [ ] README updated if needed
-- [ ] Commit messages are clear and descriptive
-- [ ] No merge conflicts with main branch
+1. **Create a feature branch**
+  ```bash
+   git checkout -b feature/your-feature-name
+  ```
+2. **Make your changes**
+  - Write code following the style guide
+  - Add tests for new features
+  - Update documentation
+3. **Test your changes**
+  ```bash
+   make test
+   make lint
+  ```
+4. **Commit with conventional commits**
+  ```bash
+   git commit -m "feat: add new retrieval strategy"
+   git commit -m "fix: correct FAISS index loading"
+   git commit -m "docs: update API documentation"
+  ```
+5. **Push and create pull request**
+  ```bash
+   git push origin feature/your-feature-name
+  ```
 
 ## Code Style
 
-This project uses:
-- **Black** for code formatting (line length: 100)
-- **Ruff** for linting
+- **Formatter**: Black (line length: 100)
+- **Import sorting**: isort
+- **Linter**: Ruff
+
+Run formatting and linting:
 
 ```bash
-# Auto-format
-black app/ tests/
-
-# Lint (auto-fix where possible)
-ruff check app/ tests/ --fix
+make format
+make lint
 ```
+
+### Code Guidelines
+
+1. **Docstrings**: Use Google-style docstrings
+2. **Type hints**: Add type hints to all functions
+3. **Error handling**: Use try-except with specific exceptions
+4. **Logging**: Use structured logging
 
 ## Testing
 
-All pull requests require passing tests:
+### Running Tests
 
 ```bash
 # Run all tests
-pytest -v
-
-# Run tests with coverage
-pytest --cov=app tests/
+make test
 
 # Run specific test file
 pytest tests/test_retriever.py -v
@@ -111,47 +104,22 @@ pytest tests/test_retriever.py -v
 
 ### Writing Tests
 
-- Use `pytest` framework
-- Place tests in `tests/` directory
-- Follow naming: `test_*.py` files, `test_*` functions
-- Use fixtures for setup/teardown
+1. Place tests in `tests/` directory
+2. Name test files `test_*.py`
+3. Use descriptive test names
+4. Mock external API calls
 
-Example:
-```python
-def test_retriever_loads_documents(sample_data_file):
-    """Test that retriever correctly loads documents."""
-    ret = Retriever()
-    ret.load_documents(sample_data_file)
-    assert len(ret.docs) == 3
-```
+## Pull Request Process
 
-## Documentation
+1. **Ensure CI passes**
+  - All tests pass
+  - Linting checks pass
+2. **Update documentation**
+  - Update README if adding features
+  - Add docstrings to new functions
+3. **Write descriptive PR description**
+  - What does this PR do?
+  - Why is it needed?
+  - How was it tested?
 
-- Update README.md for user-facing changes
-- Add docstrings to functions and classes (Google style)
-- Comment complex logic
-
-## Project Structure
-
-```
-nutrition-raqa/
-├── app/              # Main application code
-├── tests/            # Test suite
-├── data/             # Sample data (JSONL)
-├── demo.py           # Streamlit demo
-├── Dockerfile        # Container config
-├── requirements.txt  # Dependencies
-└── README.md         # Documentation
-```
-
-## Questions?
-
-Open a GitHub discussion or issue. Maintainers will respond as soon as possible.
-
-## License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
----
-
-Thank you for making this project better! 🙏
+Thank you for contributing!

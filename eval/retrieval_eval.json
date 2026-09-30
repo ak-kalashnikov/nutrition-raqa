@@ -1,0 +1,637 @@
+{
+  "k": 5,
+  "n": 52,
+  "gold": "eval/gold_qa.jsonl",
+  "model": "all-MiniLM-L6-v2",
+  "recall_at_k": 0.923077,
+  "recall_hits": 48,
+  "answer_in_retrieved_gold_doc": 0.923077,
+  "answer_supported_hits": 48,
+  "note": "Recall@k is whether a gold document id is in the top k. answer_in_retrieved_gold_doc is whether that same hit contains the gold answer string. This is not an LLM citation score.",
+  "items": [
+    {
+      "id": "g01",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "d1",
+        "open-50bbb3a4752d-c6",
+        "open-977b1ecd771b-c1",
+        "open-50bbb3a4752d-c4",
+        "open-50bbb3a4752d-c7"
+      ]
+    },
+    {
+      "id": "g02",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "d2",
+        "open-50bbb3a4752d-c13",
+        "open-50bbb3a4752d-c14",
+        "open-50bbb3a4752d-c12",
+        "open-50bbb3a4752d-c11"
+      ]
+    },
+    {
+      "id": "g03",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "d3",
+        "open-50bbb3a4752d-c8",
+        "open-50bbb3a4752d-c10",
+        "open-56d7349e9e58-c3",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g04",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c1",
+        "pressbooks-understanding-food-labels-c0",
+        "open-4d25572fe537-c11",
+        "open-4d25572fe537-c0",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g05",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c1",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c0",
+        "open-4d25572fe537-c4",
+        "open-4d25572fe537-c2",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g06",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c1",
+        "open-4d25572fe537-c2",
+        "pressbooks-nutrition-in-pregnancy-and-lactation-c13",
+        "open-4d25572fe537-c0",
+        "open-4d25572fe537-c11"
+      ]
+    },
+    {
+      "id": "g07",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c3",
+        "open-4d25572fe537-c9",
+        "open-4d25572fe537-c12",
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c4"
+      ]
+    },
+    {
+      "id": "g08",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c4",
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c10",
+        "open-4d25572fe537-c6",
+        "open-4d25572fe537-c7"
+      ]
+    },
+    {
+      "id": "g09",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c5",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c2",
+        "open-4d25572fe537-c12",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c4",
+        "pressbooks-glucose-regulation-and-utilization-c8"
+      ]
+    },
+    {
+      "id": "g10",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c6",
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c10",
+        "open-4d25572fe537-c5",
+        "open-4d25572fe537-c9"
+      ]
+    },
+    {
+      "id": "g11",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c7",
+        "open-4d25572fe537-c10",
+        "open-4d25572fe537-c8",
+        "pressbooks-sources-of-vitamins-and-minerals-c0",
+        "pressbooks-fiber-types-and-health-benefits-c3"
+      ]
+    },
+    {
+      "id": "g12",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c7",
+        "open-4d25572fe537-c9",
+        "open-4d25572fe537-c4",
+        "open-4d25572fe537-c5"
+      ]
+    },
+    {
+      "id": "g13",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c9",
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c6",
+        "open-4d25572fe537-c5",
+        "open-4d25572fe537-c10"
+      ]
+    },
+    {
+      "id": "g14",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c9",
+        "open-4d25572fe537-c10",
+        "open-4d25572fe537-c8",
+        "open-4d25572fe537-c5",
+        "open-4d25572fe537-c3"
+      ]
+    },
+    {
+      "id": "g15",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c11",
+        "pressbooks-dietary-reference-intakes-c7",
+        "open-462665720f63-c18",
+        "open-4d25572fe537-c1",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c2"
+      ]
+    },
+    {
+      "id": "g16",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-4d25572fe537-c11",
+        "open-4d25572fe537-c12",
+        "open-4d25572fe537-c2",
+        "open-56d7349e9e58-c14",
+        "pressbooks-measures-of-body-composition-and-health-c2"
+      ]
+    },
+    {
+      "id": "g17",
+      "recall_hit": false,
+      "answer_in_retrieved_gold_doc": false,
+      "retrieved_ids": [
+        "pressbooks-health-consequences-of-protein-imbalance-c6",
+        "pressbooks-lipid-recommendations-and-heart-health-c6",
+        "pressbooks-dietary-reference-intakes-c7",
+        "open-462665720f63-c18",
+        "open-4d25572fe537-c1"
+      ]
+    },
+    {
+      "id": "g18",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c0",
+        "open-462665720f63-c17",
+        "open-462665720f63-c18",
+        "open-462665720f63-c1",
+        "open-462665720f63-c15"
+      ]
+    },
+    {
+      "id": "g19",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c1",
+        "open-462665720f63-c0",
+        "open-462665720f63-c15",
+        "open-462665720f63-c17",
+        "pressbooks-introduction-to-molecules-c3"
+      ]
+    },
+    {
+      "id": "g20",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "pressbooks-types-of-carbohydrates-c0",
+        "open-462665720f63-c2",
+        "pressbooks-carbohydrate-food-sources-and-guidelines-c0",
+        "pressbooks-types-of-carbohydrates-c6",
+        "pressbooks-digestion-and-absorption-of-carbohydrates-c3"
+      ]
+    },
+    {
+      "id": "g21",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "pressbooks-the-functions-of-fats-c4",
+        "pressbooks-lipid-types-and-structures-c0",
+        "open-462665720f63-c3",
+        "open-462665720f63-c2",
+        "pressbooks-lipid-types-and-structures-c2"
+      ]
+    },
+    {
+      "id": "g22",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "pressbooks-protein-functions-c0",
+        "pressbooks-protein-structure-c0",
+        "pressbooks-protein-structure-c2",
+        "open-462665720f63-c4",
+        "pressbooks-health-consequences-of-protein-imbalance-c0"
+      ]
+    },
+    {
+      "id": "g23",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c4",
+        "open-462665720f63-c5",
+        "open-50bbb3a4752d-c11",
+        "open-50bbb3a4752d-c16",
+        "d2"
+      ]
+    },
+    {
+      "id": "g24",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "pressbooks-the-digestive-system-c2",
+        "pressbooks-digestion-and-absorption-of-carbohydrates-c1",
+        "pressbooks-protein-functions-c1",
+        "open-462665720f63-c6",
+        "pressbooks-the-digestive-system-c3"
+      ]
+    },
+    {
+      "id": "g25",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c7",
+        "open-462665720f63-c6",
+        "open-462665720f63-c8",
+        "pressbooks-calcium-and-bone-health-c0",
+        "pressbooks-vitamins-and-minerals-classification-c2"
+      ]
+    },
+    {
+      "id": "g26",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c6",
+        "open-462665720f63-c8",
+        "open-462665720f63-c7",
+        "pressbooks-vitamins-and-minerals-classification-c3",
+        "pressbooks-vitamins-and-minerals-classification-c2"
+      ]
+    },
+    {
+      "id": "g27",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c8",
+        "pressbooks-vitamins-and-minerals-classification-c4",
+        "open-462665720f63-c10",
+        "open-462665720f63-c9",
+        "pressbooks-calcium-and-bone-health-c4"
+      ]
+    },
+    {
+      "id": "g28",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c9",
+        "open-462665720f63-c8",
+        "pressbooks-vitamin-d-important-to-bone-health-c1",
+        "open-462665720f63-c10",
+        "pressbooks-sources-of-vitamins-and-minerals-c3"
+      ]
+    },
+    {
+      "id": "g29",
+      "recall_hit": false,
+      "answer_in_retrieved_gold_doc": false,
+      "retrieved_ids": [
+        "open-462665720f63-c5",
+        "open-462665720f63-c4",
+        "pressbooks-introduction-to-molecules-c3",
+        "open-56d7349e9e58-c0",
+        "open-462665720f63-c1"
+      ]
+    },
+    {
+      "id": "g30",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c12",
+        "open-462665720f63-c13",
+        "pressbooks-understanding-food-labels-c2",
+        "pressbooks-dietary-reference-intakes-c0",
+        "pressbooks-measures-of-body-composition-and-health-c1"
+      ]
+    },
+    {
+      "id": "g31",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c13",
+        "open-462665720f63-c12",
+        "pressbooks-understanding-food-labels-c2",
+        "open-462665720f63-c15",
+        "open-462665720f63-c18"
+      ]
+    },
+    {
+      "id": "g32",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c12",
+        "open-462665720f63-c13",
+        "open-462665720f63-c14",
+        "pressbooks-understanding-food-labels-c2",
+        "open-462665720f63-c18"
+      ]
+    },
+    {
+      "id": "g33",
+      "recall_hit": false,
+      "answer_in_retrieved_gold_doc": false,
+      "retrieved_ids": [
+        "pressbooks-understanding-food-labels-c2",
+        "open-462665720f63-c12",
+        "open-462665720f63-c18",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c9",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g34",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c16",
+        "pressbooks-vitamins-and-minerals-classification-c0",
+        "open-462665720f63-c15",
+        "pressbooks-introduction-to-molecules-c3",
+        "pressbooks-vitamins-and-minerals-classification-c4"
+      ]
+    },
+    {
+      "id": "g35",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c17",
+        "open-462665720f63-c18",
+        "open-462665720f63-c15",
+        "pressbooks-dietary-reference-intakes-c7",
+        "open-462665720f63-c0"
+      ]
+    },
+    {
+      "id": "g36",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-462665720f63-c18",
+        "open-462665720f63-c12",
+        "open-56d7349e9e58-c13",
+        "open-462665720f63-c13",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g37",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c2",
+        "open-977b1ecd771b-c13",
+        "pressbooks-lipid-recommendations-and-heart-health-c6",
+        "open-977b1ecd771b-c0",
+        "pressbooks-health-consequences-of-protein-imbalance-c2"
+      ]
+    },
+    {
+      "id": "g38",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-50bbb3a4752d-c4",
+        "open-977b1ecd771b-c1",
+        "open-50bbb3a4752d-c19",
+        "open-977b1ecd771b-c0",
+        "open-50bbb3a4752d-c7"
+      ]
+    },
+    {
+      "id": "g39",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c2",
+        "pressbooks-protein-structure-c5",
+        "open-977b1ecd771b-c13",
+        "pressbooks-protein-structure-c0",
+        "pressbooks-protein-structure-c3"
+      ]
+    },
+    {
+      "id": "g40",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c3",
+        "open-977b1ecd771b-c2",
+        "open-977b1ecd771b-c4",
+        "open-977b1ecd771b-c12",
+        "open-977b1ecd771b-c1"
+      ]
+    },
+    {
+      "id": "g41",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c3",
+        "open-977b1ecd771b-c4",
+        "open-977b1ecd771b-c12",
+        "open-977b1ecd771b-c1",
+        "open-977b1ecd771b-c2"
+      ]
+    },
+    {
+      "id": "g42",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c7",
+        "open-977b1ecd771b-c6",
+        "open-977b1ecd771b-c5",
+        "open-977b1ecd771b-c10",
+        "open-977b1ecd771b-c8"
+      ]
+    },
+    {
+      "id": "g43",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c5",
+        "open-977b1ecd771b-c6",
+        "open-977b1ecd771b-c7",
+        "open-50bbb3a4752d-c7",
+        "open-977b1ecd771b-c11"
+      ]
+    },
+    {
+      "id": "g44",
+      "recall_hit": false,
+      "answer_in_retrieved_gold_doc": false,
+      "retrieved_ids": [
+        "pressbooks-nutrition-in-pregnancy-and-lactation-c4",
+        "pressbooks-understanding-food-labels-c3",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c2",
+        "pressbooks-tools-for-achieving-a-healthy-diet-c7",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g45",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c8",
+        "open-977b1ecd771b-c10",
+        "open-977b1ecd771b-c7",
+        "open-462665720f63-c3",
+        "open-977b1ecd771b-c6"
+      ]
+    },
+    {
+      "id": "g46",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c9",
+        "open-977b1ecd771b-c10",
+        "open-977b1ecd771b-c8",
+        "open-977b1ecd771b-c7",
+        "open-977b1ecd771b-c5"
+      ]
+    },
+    {
+      "id": "g47",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c10",
+        "open-977b1ecd771b-c8",
+        "pressbooks-carbohydrate-food-sources-and-guidelines-c1",
+        "open-977b1ecd771b-c12",
+        "open-977b1ecd771b-c7"
+      ]
+    },
+    {
+      "id": "g48",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c11",
+        "open-977b1ecd771b-c10",
+        "pressbooks-protein-digestion-and-absorption-c3",
+        "pressbooks-protein-digestion-and-absorption-c2",
+        "pressbooks-digestion-and-absorption-of-carbohydrates-c3"
+      ]
+    },
+    {
+      "id": "g49",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-977b1ecd771b-c12",
+        "open-977b1ecd771b-c2",
+        "open-977b1ecd771b-c3",
+        "open-462665720f63-c18",
+        "pressbooks-dietary-reference-intakes-c7"
+      ]
+    },
+    {
+      "id": "g50",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "pressbooks-types-of-carbohydrates-c1",
+        "open-56d7349e9e58-c6",
+        "open-56d7349e9e58-c0",
+        "open-56d7349e9e58-c7",
+        "pressbooks-the-functions-of-fats-c0"
+      ]
+    },
+    {
+      "id": "g51",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-56d7349e9e58-c6",
+        "open-56d7349e9e58-c9",
+        "open-56d7349e9e58-c1",
+        "open-56d7349e9e58-c0",
+        "open-56d7349e9e58-c7"
+      ]
+    },
+    {
+      "id": "g52",
+      "recall_hit": true,
+      "answer_in_retrieved_gold_doc": true,
+      "retrieved_ids": [
+        "open-50bbb3a4752d-c1",
+        "open-50bbb3a4752d-c0",
+        "open-50bbb3a4752d-c3",
+        "open-50bbb3a4752d-c4",
+        "open-50bbb3a4752d-c2"
+      ]
+    }
+  ]
+}

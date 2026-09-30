@@ -1,14 +1,41 @@
-venv/
+# --- Python ---
 .venv/
+venv/
+ENV/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# --- Tests / tools ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# --- Secrets (never commit) ---
 .env
-.env.*
-*.sqlite3
-*.db
-*.pth
-.ipynb_checkpoints/
+.env.local
+*.pem
+
+# --- OS / editor ---
 .DS_Store
-.envrc
-.vscode/
+Thumbs.db
 .idea/
+.vscode/
+*.swp
+*~
+
+# --- Logs ---
+*.log
+
+# --- App data: FAISS build output (rebuilt in Docker / HF) ---
+/data/index/
