@@ -2,9 +2,10 @@ const form = document.getElementById('chat-form');
 const messages = document.getElementById('messages');
 const promptEl = document.getElementById('prompt');
 const sendBtn = document.getElementById('send');
-const suggestionsEl = document.getElementById('suggestions');
-const llmSelect = document.getElementById('llm-select');
+const modelBtn = document.getElementById('model-btn');
+const modelMenu = document.getElementById('model-menu');
 const llmNote = document.getElementById('llm-note');
+let selectedModelId = null;
 
 function escapeHtml(str) {
   if (str == null) return '';
@@ -15,6 +16,12 @@ function escapeHtml(str) {
 
 function nl2br(escaped) {
   return escaped.replace(/\n/g, '<br>');
+}
+
+function matchPercent(score) {
+  const value = Number(score);
+  if (!Number.isFinite(value)) return 'n/a';
+  return `${(Math.max(0, Math.min(1, value)) * 100).toFixed(1)}%`;
 }
 
 /**
@@ -61,35 +68,75 @@ function appendMessage(role, content, opts = {}) {
   return row;
 }
 
-appendMessage(
-  'bot',
-  "Hi! I'm your nutrition and sports health assistant. I can explain nutrients, macros, training fuel, hydration, and general sports nutrition.\n\nI can't give medical advice or emergency help. For diagnoses, medication, or urgent issues, please contact a licensed professional.",
-);
+const emptyState = document.getElementById('empty');
+
+function closeModelMenu() {
+  modelMenu.hidden = true;
+  modelBtn.setAttribute('aria-expanded', 'false');
+}
+
+function renderModelMenu(options, defaultId) {
+  modelMenu.innerHTML = '';
+  if (!options.length) {
+    const empty = document.createElement('div');
+    empty.className = 'model-empty';
+    empty.textContent = 'No models wired.';
+    modelMenu.appendChild(empty);
+    modelBtn.textContent = 'Models';
+    selectedModelId = null;
+    return;
+  }
+  const availableDefault = options.find((o) => o.id === defaultId && o.available !== false);
+  selectedModelId = availableDefault
+    ? availableDefault.id
+    : (options.find((o) => o.available !== false) || options[0]).id;
+  const current = options.find((o) => o.id === selectedModelId);
+  modelBtn.textContent = current ? current.label : 'Models';
+  for (const option of options) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'model-option';
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-selected', option.id === selectedModelId ? 'true' : 'false');
+    if (option.available === false) item.disabled = false;
+    const status = option.available === false ? ' · not enabled' : '';
+    item.textContent = option.label + status;
+    item.addEventListener('click', () => {
+      selectedModelId = option.id;
+      modelBtn.textContent = option.label;
+      closeModelMenu();
+      for (const el of modelMenu.querySelectorAll('.model-option')) {
+        el.setAttribute('aria-selected', el.dataset.id === option.id ? 'true' : 'false');
+      }
+    });
+    item.dataset.id = option.id;
+    modelMenu.appendChild(item);
+  }
+}
 
 async function loadLlmOptions() {
   try {
     const res = await fetch('/llm/options');
     const data = await res.json();
-    llmSelect.innerHTML = '';
-    const opts = data.options || [];
-    for (const o of opts) {
-      const opt = document.createElement('option');
-      opt.value = o.id;
-      opt.textContent = o.label;
-      llmSelect.appendChild(opt);
-    }
-    if (data.default && opts.some((o) => o.id === data.default)) {
-      llmSelect.value = data.default;
-    }
-    llmNote.textContent =
-      opts.length === 0
-        ? 'Server has no LLM API keys — add GROQ_API_KEY, HF_TOKEN, or GEMINI_API_KEY.'
-        : 'Free-tier quotas apply.';
+    renderModelMenu(data.options || [], data.default);
+    llmNote.textContent = '';
   } catch (e) {
-    llmNote.textContent = 'Could not load model list.';
+    llmNote.textContent = 'Could not load models.';
     console.warn(e);
   }
 }
+
+modelBtn.addEventListener('click', () => {
+  const open = modelMenu.hidden;
+  modelMenu.hidden = !open;
+  modelBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
+document.addEventListener('click', (event) => {
+  if (!modelBtn.contains(event.target) && !modelMenu.contains(event.target)) {
+    closeModelMenu();
+  }
+});
 
 /**
  * POST /query/stream: consumes SSE until a single `data:` JSON payload (same shape as /query).
@@ -146,16 +193,6 @@ async function fetchQueryWithKeepalive(prompt, k, llmId) {
   return dataPayload;
 }
 
-suggestionsEl.addEventListener('click', (e) => {
-  const chip = e.target.closest('.chip');
-  if (!chip) return;
-  const q = chip.getAttribute('data-q');
-  if (!q) return;
-  promptEl.value = q;
-  promptEl.dispatchEvent(new Event('input'));
-  promptEl.focus();
-});
-
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const prompt = promptEl.value.trim();
@@ -164,49 +201,51 @@ form.addEventListener('submit', async (e) => {
   promptEl.disabled = true;
   sendBtn.disabled = true;
 
+  if (emptyState) emptyState.hidden = true;
   appendMessage('user', prompt);
 
-  const loadingHtml = `
-    <div class="loading-inner">
-      <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-      <span>Searching the knowledge base and drafting an answer…</span>
-    </div>
-  `;
+  const loadingHtml = `<span class="loading-inner">…</span>`;
   const loadingRow = appendMessage('bot', loadingHtml, { richHtml: true });
 
   promptEl.value = '';
 
   try {
-    const data = await fetchQueryWithKeepalive(prompt, 3, llmSelect.value || null);
+    const data = await fetchQueryWithKeepalive(prompt, 3, selectedModelId);
     loadingRow.remove();
 
     if (data.error) {
       appendMessage('bot', data.error, { isError: true });
-      return;
     }
 
-    if (data.answer) {
+    const sources = Array.isArray(data.sources) ? data.sources : [];
+    const sourceCount = Number(data.source_count || sources.length || 0);
+
+    if (data.answer && !data.error) {
       const bodyHtml = nl2br(escapeHtml(data.answer));
+      const footer =
+        sourceCount > 0
+          ? `<div class="answer-footer">Based on ${sourceCount} retrieved passage(s).</div>`
+          : '';
       const answerHTML = `
 <div class="ai-answer">
   <div class="answer-content">${bodyHtml}</div>
-  <div class="answer-footer">Based on ${data.source_count} document(s) in the index.</div>
+  ${footer}
 </div>`;
       appendMessage('bot', answerHTML, { richHtml: true });
 
-      if (data.sources && data.sources.length) {
+      if (sources.length) {
         const sourceHTML = `
 <div class="sources-container">
   <details>
-    <summary>View source documents (${data.sources.length})</summary>
+    <summary>View source documents (${sources.length})</summary>
     <div class="sources-list">
-      ${data.sources
+      ${sources
         .map(
           (r, i) => `
       <div class="source-item">
         <div class="source-header">
           <span class="source-number">Source ${i + 1}</span>
-          <span class="source-score">Match: ${Number(r.score).toFixed(1)}%</span>
+          <span class="source-score">Match: ${matchPercent(r.score)}</span>
         </div>
         <strong>${escapeHtml(r.title || 'Document')}</strong>
         <p>${escapeHtml(r.text || '')}</p>
@@ -218,7 +257,7 @@ form.addEventListener('submit', async (e) => {
 </div>`;
         appendMessage('bot', sourceHTML, { richHtml: true });
       }
-    } else if (data.sources && data.sources.length) {
+    } else if (sources.length) {
       appendMessage(
         'bot',
         'Could not generate an answer, but these documents matched your question:',
@@ -232,7 +271,7 @@ form.addEventListener('submit', async (e) => {
     <div class="source-item">
       <div class="source-header">
         <span class="source-number">Source ${i + 1}</span>
-        <span class="source-score">Match: ${(Math.max(0, Math.min(1, Number(r.score))) * 100).toFixed(1)}%</span>
+        <span class="source-score">Match: ${matchPercent(r.score)}</span>
       </div>
       <strong>${escapeHtml(r.title || 'Document')}</strong>
       <p>${escapeHtml(r.text || '')}</p>
@@ -242,7 +281,7 @@ form.addEventListener('submit', async (e) => {
   </div>
 </div>`;
       appendMessage('bot', sourceHTML, { richHtml: true });
-    } else {
+    } else if (!data.error) {
       appendMessage('bot', 'No results found. Try rephrasing your question.', { isError: true });
     }
   } catch (err) {

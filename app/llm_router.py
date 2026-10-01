@@ -26,20 +26,30 @@ class LLMRouter:
     gemini_key: str | None
     default_llm_id: str
 
+    def _provider_ready(self, model_id: str) -> bool:
+        if model_id.startswith("groq:"):
+            return self.groq_client is not None
+        if model_id.startswith("hf:"):
+            return bool(self.hf_token)
+        if model_id.startswith("gemini:"):
+            return bool(self.gemini_key)
+        return False
+
+    def catalog(self) -> list[dict[str, str | bool]]:
+        """Every wired model, including ones that still need a key."""
+        rows: list[dict[str, str | bool]] = []
+        for model in DEFAULT_MODELS:
+            row: dict[str, str | bool] = dict(model)
+            row["available"] = self._provider_ready(str(model["id"]))
+            rows.append(row)
+        return rows
+
     def list_options(self) -> list[dict[str, str]]:
-        opts: list[dict[str, str]] = []
-        for m in DEFAULT_MODELS:
-            mid = m["id"]
-            if mid.startswith("groq:") and self.groq_client is None:
-                continue
-            if mid.startswith("hf:") and not self.hf_token:
-                continue
-            if mid.startswith("gemini:") and not self.gemini_key:
-                continue
-            opts.append(dict(m))
-        if not opts:
-            return []
-        return opts
+        return [
+            {"id": str(row["id"]), "label": str(row["label"])}
+            for row in self.catalog()
+            if row["available"]
+        ]
 
     def resolve_default(self) -> str:
         opts = self.list_options()

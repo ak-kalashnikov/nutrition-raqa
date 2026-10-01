@@ -146,6 +146,14 @@ def _maybe_expand_kb_from_research(question: str) -> None:
 
 
 @app.middleware("http")
+async def no_cache_ui(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path in {"/", "/chat"} or request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     client_ip = request.client.host if request.client else "unknown"
     now = time.time()
@@ -295,7 +303,7 @@ def _build_query_result(req: QueryRequest) -> dict:
             "answer": None,
             "sources": retrieved_docs,
             "source_count": len(retrieved_docs),
-            "error": "No LLM API keys configured. Set GROQ_API_KEY, HF_TOKEN, or GEMINI_API_KEY in the environment.",
+            "error": "No model is enabled on this server yet.",
         }
 
     try:
@@ -365,8 +373,10 @@ Provide a thorough answer that synthesizes information from the documents, expla
 async def llm_options():
     if llm_router is None:
         return {"options": [], "default": None}
-    opts = llm_router.list_options()
-    return {"options": opts, "default": llm_router.resolve_default()}
+    return {
+        "options": llm_router.catalog(),
+        "default": llm_router.resolve_default(),
+    }
 
 
 @app.post("/query")

@@ -3,74 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nutrition RAQA — Chat</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/chat.css">
+  <title>Chat</title>
+  <link rel="stylesheet" href="/static/chat.css?v=7">
 </head>
 <body>
-  <div class="app-bg" aria-hidden="true"></div>
-  <div class="chat-app">
-    <header class="chat-header">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="9" fill="url(#g)"/>
-            <path d="M9 20c2.5-4 5-8 7.5-12 2.5 4 5 8 7.5 12" stroke="rgba(15,23,20,0.9)" stroke-width="2" stroke-linecap="round"/>
-            <defs>
-              <linearGradient id="g" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#34d399"/>
-                <stop offset="1" stop-color="#14b8a6"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-        <div class="brand-text">
-          <h1 class="brand-title">Nutrition RAQA</h1>
-          <p class="brand-sub">Evidence-style answers from your knowledge base</p>
-        </div>
-      </div>
-      <span class="badge-edu">Educational</span>
-    </header>
-
-    <p class="chat-disclaimer">
-      Not medical advice. For emergencies, symptoms, or personal treatment decisions, contact a licensed professional or local emergency services.
-    </p>
-
-    <div class="messages-scroll">
-      <main id="messages" class="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></main>
+  <header class="topbar">
+    <div class="model-wrap">
+      <button type="button" id="model-btn" class="model-btn" aria-haspopup="listbox" aria-expanded="false">Models</button>
+      <div id="model-menu" class="model-menu" hidden role="listbox" aria-label="Models"></div>
     </div>
+  </header>
 
-    <div class="suggestions" id="suggestions" aria-label="Example questions">
-      <span class="suggestions-label">Try</span>
-      <button type="button" class="chip" data-q="How much protein do athletes need per day?">Protein for athletes</button>
-      <button type="button" class="chip" data-q="What should I eat before endurance training?">Pre-training fuel</button>
-      <button type="button" class="chip" data-q="How does hydration affect performance?">Hydration</button>
-      <button type="button" class="chip" data-q="What is creatine and is it safe?">Creatine basics</button>
+  <main class="stage">
+    <div id="empty" class="empty">How can I help you?</div>
+    <div id="messages" class="thread" role="log" aria-live="polite"></div>
+  </main>
+
+  <form id="chat-form" class="dock">
+    <div class="box">
+      <label class="sr-only" for="prompt">Message</label>
+      <textarea id="prompt" rows="1" placeholder="Message" autocomplete="off"></textarea>
+      <button type="submit" id="send" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </button>
     </div>
-
-    <div class="llm-bar" id="llm-bar">
-      <label class="llm-bar-label" for="llm-select">Model</label>
-      <select id="llm-select" class="llm-select" aria-label="Language model"></select>
-      <span class="llm-note" id="llm-note" role="status"></span>
-    </div>
-
-    <footer class="composer">
-      <form id="chat-form" class="chat-form">
-        <label class="sr-only" for="prompt">Your question</label>
-        <div class="input-shell">
-          <textarea id="prompt" placeholder="Ask about macros, recovery, supplements, training nutrition…" rows="1" autocomplete="off"></textarea>
-          <button type="submit" id="send" class="send-btn" aria-label="Send message">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
-        </div>
-        <p class="composer-hint"><kbd>Enter</kbd> send · <kbd>Shift</kbd>+<kbd>Enter</kbd> new line</p>
-      </form>
-    </footer>
-  </div>
-  <script src="/static/chat.js"></script>
+    <p class="fine">Educational only. Not a medical device and not for diagnosis, treatment, or emergencies.</p>
+    <p id="llm-note" class="fine"></p>
+  </form>
+  <script src="/static/chat.js?v=8"></script>
 </body>
 </html>
