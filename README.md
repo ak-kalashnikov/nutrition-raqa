@@ -1,3 +1,14 @@
+---
+title: Nutrition RAQA
+emoji: 🥗
+colorFrom: gray
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: Educational nutrition Q&A from a textbook index
+---
+
 # Nutrition RAQA
 
 Retrieval-augmented question answering over an open nutrition textbook, plus three short sports-nutrition notes. This repository is the continuation of the February 2026 project. The May 2026 `Nutrition_bot` code (multi-provider chat, streaming, textbook chunks, and retrieval eval) is merged here. `Nutrition_bot` is not a second product.

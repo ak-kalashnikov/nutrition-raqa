@@ -1,0 +1,23 @@
+name: Keep the Space awake
+
+on:
+  schedule:
+    # Hourly. GitHub may start this a few minutes late.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request /health
+        env:
+          SPACE_HEALTH_URL: ${{ secrets.SPACE_HEALTH_URL }}
+        run: |
+          if [ -z "$SPACE_HEALTH_URL" ]; then
+            echo "Set the repository secret SPACE_HEALTH_URL to https://YOUR_SPACE.hf.space/health"
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 2 --retry-delay 20 --max-time 180 "$SPACE_HEALTH_URL"
+          echo
+          echo "Ping sent to $SPACE_HEALTH_URL"
