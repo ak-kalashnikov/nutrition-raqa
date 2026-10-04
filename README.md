@@ -17,8 +17,9 @@ Retrieval-augmented question answering over an open nutrition textbook, plus thr
 
 1. Embed the question with `all-MiniLM-L6-v2`.
 2. Search a FAISS `IndexFlatIP` index.
-3. If the top score is below `RELEVANCE_THRESHOLD` (default 0.4), return a fixed refusal. The language model is not called, and the index is not modified.
-4. If the score clears the threshold and an API key is configured, `LLMRouter` answers from those passages only. Providers: Groq, Hugging Face Inference, Gemini.
+3. A greeting or help-seeking line with no nutrition term ("hello", "I need your help") gets a short reply and does not search the index. A nutrition term still goes through retrieval, including "help me figure out protein".
+4. If the top score is below `RELEVANCE_THRESHOLD` (default 0.4), return a fixed refusal. The language model is not called, and the index is not modified.
+5. If the score clears the threshold and an API key is configured, `LLMRouter` answers from those passages only. The default Groq model is `openai/gpt-oss-120b` ([Groq production models](https://console.groq.com/docs/models)). `llama-3.3-70b-versatile` was shut down for developer keys on 2026-08-16.
 
 Endpoints: `/health`, `/query`, `/query/stream` (one Server-Sent Event after the answer is finished), `/chat`.
 

@@ -15,7 +15,7 @@ class Settings:
 
     # Groq / LLM
     groq_api_key: str | None = os.getenv("GROQ_API_KEY")
-    groq_model: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    groq_model: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     default_llm_id: str | None = os.getenv("DEFAULT_LLM_ID")
 
     # Hugging Face Hub (index persistence + optional Inference API)

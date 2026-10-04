@@ -64,8 +64,18 @@ function appendMessage(role, content, opts = {}) {
   row.appendChild(avatar);
   row.appendChild(body);
   messages.appendChild(row);
-  messages.scrollTop = messages.scrollHeight;
+  scrollThreadToEnd();
   return row;
+}
+
+function scrollThreadToEnd() {
+  const stage = document.querySelector('.stage');
+  const snap = () => {
+    if (!stage) return;
+    stage.scrollTop = stage.scrollHeight;
+  };
+  snap();
+  requestAnimationFrame(snap);
 }
 
 const emptyState = document.getElementById('empty');

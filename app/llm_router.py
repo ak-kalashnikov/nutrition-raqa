@@ -9,10 +9,13 @@ from typing import Any
 logger = logging.getLogger("nutrition-raqa.llm")
 
 # Allowlist: provider free-tier style models (adjust via env on Space)
+# Groq shut down llama-3.3-70b-versatile, llama-3.1-8b-instant, and
+# mixtral-8x7b-32768 for free and developer keys on 2026-08-16.
+# https://console.groq.com/docs/deprecations
+# Self-serve production chat models: https://console.groq.com/docs/models
 DEFAULT_MODELS: list[dict[str, str]] = [
-    {"id": "groq:llama-3.3-70b-versatile", "label": "Groq — Llama 3.3 70B"},
-    {"id": "groq:llama-3.1-8b-instant", "label": "Groq — Llama 3.1 8B Instant"},
-    {"id": "groq:mixtral-8x7b-32768", "label": "Groq — Mixtral 8x7B"},
+    {"id": "groq:openai/gpt-oss-120b", "label": "Groq — GPT-OSS 120B"},
+    {"id": "groq:openai/gpt-oss-20b", "label": "Groq — GPT-OSS 20B"},
     {"id": "hf:mistralai/Mistral-7B-Instruct-v0.2", "label": "HF — Mistral 7B Instruct"},
     {"id": "hf:meta-llama/Llama-3.2-3B-Instruct", "label": "HF — Llama 3.2 3B"},
     {"id": "gemini:gemini-2.0-flash", "label": "Gemini — 2.0 Flash"},

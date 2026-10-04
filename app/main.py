@@ -56,6 +56,18 @@ _research_events: Deque[float] = deque()
 SSE_KEEPALIVE_SECONDS = float(os.getenv("SSE_KEEPALIVE_SECONDS", "15"))
 
 
+def _is_social_turn(text: str) -> bool:
+    """Help-seeking or greeting, with no nutrition term to retrieve."""
+    folded = " ".join(text.lower().split())
+    if any(term in folded for term in _NUTRITION_TERMS):
+        return False
+    if folded in _EXACT_GREETINGS:
+        return True
+    if any(phrase in folded for phrase in _SOCIAL_PHRASES):
+        return True
+    return False
+
+
 def _is_high_risk_query(text: str) -> bool:
     """Very lightweight safety filter for emergencies / self-harm / acute issues."""
     t = text.lower()
@@ -90,6 +102,89 @@ NOT_IN_DOCUMENTS = (
     "I can't answer that from the nutrition documents in this index. "
     "The closest passage scored below the relevance threshold, so this reply "
     "is not a generated answer."
+)
+
+# Social turns skip retrieval. A nutrition term sends the message through RAG
+# instead, including "help me figure out protein".
+_NUTRITION_TERMS = (
+    "protein",
+    "carb",
+    "calorie",
+    "vitamin",
+    "mineral",
+    "hydrat",
+    "creatine",
+    "supplement",
+    "diet",
+    "macro",
+    "fiber",
+    "iron",
+    "calcium",
+    "sodium",
+    "athlete",
+    "workout",
+    "training",
+    "meal",
+    "nutrient",
+    "glucose",
+    "cholesterol",
+    "electrolyte",
+    "omega",
+    "food",
+    "recovery",
+    "muscle",
+    "sugar",
+    "water",
+)
+
+_SOCIAL_PHRASES = (
+    "i need your help",
+    "need your help",
+    "help me figure",
+    "figure something out",
+    "figure this out",
+    "can you help",
+    "could you help",
+    "i want you to help",
+    "want you to help",
+    "what can you do",
+    "what do you do",
+    "who are you",
+    "what are you",
+    "what is your",
+    "what's your",
+    "whats your",
+    "your skill",
+    "your task",
+    "your job",
+    "how are you",
+    "i need help",
+    "help me",
+    "thank you",
+    "thanks",
+    "good morning",
+    "good evening",
+    "good afternoon",
+    "what's up",
+    "whats up",
+    "howdy",
+)
+
+_EXACT_GREETINGS = {"hi", "hello", "hey", "sup", "yo", "hiya", "hello there"}
+
+CONVERSATION_SYSTEM = (
+    "You are Nutrition RAQA. The user is not asking a textbook question yet. "
+    "Reply in a few sentences. Greet them if they greeted you, ask what they "
+    "want help figuring out, and say you answer nutrition questions from an "
+    "open textbook: protein, hydration, vitamins, meals, and training. "
+    "Do not state nutrition facts, doses, or meal plans. "
+    "Do not diagnose, prescribe, or give medical advice."
+)
+
+SOCIAL_NO_MODEL = (
+    "Tell me what you want help with. A nutrition question — protein, "
+    "hydration, vitamins, meals, or training — is looked up in the textbook "
+    "index. This server has no language-model key, so I cannot chat past that."
 )
 
 
@@ -240,6 +335,44 @@ async def startup_event():
             logger.warning("Could not persist initial index to disk: %s", e)
 
 
+def _conversation_reply(req: QueryRequest) -> dict:
+    """Short reply for greetings and help-seeking. No retrieved passages."""
+    if llm_router is None or not llm_router.list_options():
+        return {
+            "question": req.question,
+            "answer": SOCIAL_NO_MODEL,
+            "sources": [],
+            "source_count": 0,
+            "abstained": False,
+        }
+    try:
+        answer = llm_router.complete(
+            [
+                {"role": "system", "content": CONVERSATION_SYSTEM},
+                {"role": "user", "content": req.question},
+            ],
+            req.llm_id,
+            temperature=0.3,
+            max_tokens=400,
+        )
+    except Exception as e:
+        logger.exception("Conversation reply failed: %s", e)
+        return {
+            "question": req.question,
+            "answer": SOCIAL_NO_MODEL,
+            "sources": [],
+            "source_count": 0,
+            "error": f"Error: {e}",
+        }
+    return {
+        "question": req.question,
+        "answer": answer,
+        "sources": [],
+        "source_count": 0,
+        "abstained": False,
+    }
+
+
 def _build_query_result(req: QueryRequest) -> dict:
     """Synchronous RAG + LLM pipeline; used by /query and /query/stream."""
     if retriever is None or llm_router is None:
@@ -264,18 +397,8 @@ def _build_query_result(req: QueryRequest) -> dict:
             "source_count": 0,
         }
 
-    greetings = ["hi", "hello", "hey", "sup", "what's up", "howdy"]
-    question_lower = req.question.lower().strip()
-
-    if question_lower in greetings or (
-        question_lower.endswith("?") is False and len(question_lower) < 5
-    ):
-        return {
-            "question": req.question,
-            "answer": "Hi there! 👋 I'm a nutrition and sports health expert. Ask me anything about protein, training, recovery, supplements, hydration, diet plans, or sports performance!",
-            "sources": [],
-            "source_count": 0,
-        }
+    if _is_social_turn(req.question):
+        return _conversation_reply(req)
 
     retrieved_docs = retriever.retrieve(req.question, k=req.k)
     relevance_threshold = settings.relevance_threshold

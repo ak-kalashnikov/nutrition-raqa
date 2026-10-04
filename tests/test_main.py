@@ -96,8 +96,47 @@ def test_query_below_threshold_abstains(client: TestClient):
 
 
 def test_query_greeting_short_circuit(client: TestClient):
+    client.mock_retriever.retrieve.reset_mock()  # type: ignore[attr-defined]
+    client.mock_llm.complete.reset_mock()  # type: ignore[attr-defined]
     resp = client.post("/query", json={"question": "hello", "k": 3})
     assert resp.status_code == 200
     body = resp.json()
-    assert "Hi" in (body.get("answer") or "") or "nutrition" in (body.get("answer") or "").lower()
     assert body.get("source_count", 0) == 0
+    assert body.get("abstained") is not True
+    assert body.get("answer")
+    client.mock_retriever.retrieve.assert_not_called()  # type: ignore[attr-defined]
+    client.mock_llm.complete.assert_called_once()  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "i need your help",
+        "i want you to help me figure something out 1",
+        "can you help me with something ?",
+        "what is your skills ?",
+        "who are you ?",
+        "whats your task ?",
+        "what are you ?",
+    ],
+)
+def test_social_turn_does_not_search(client: TestClient, question: str):
+    client.mock_retriever.retrieve.reset_mock()  # type: ignore[attr-defined]
+    resp = client.post("/query", json={"question": question, "k": 3})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body.get("abstained") is not True
+    assert body.get("source_count", 0) == 0
+    assert body.get("answer")
+    client.mock_retriever.retrieve.assert_not_called()  # type: ignore[attr-defined]
+
+
+def test_help_with_nutrition_term_still_retrieves(client: TestClient):
+    client.mock_retriever.retrieve.reset_mock()  # type: ignore[attr-defined]
+    resp = client.post(
+        "/query",
+        json={"question": "help me figure out how much protein athletes need", "k": 3},
+    )
+    assert resp.status_code == 200
+    client.mock_retriever.retrieve.assert_called()  # type: ignore[attr-defined]
+    assert resp.json().get("abstained") is not True
